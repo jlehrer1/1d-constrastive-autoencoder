@@ -87,7 +87,6 @@ class ResNet18Enc(nn.Module):
         self.linear = nn.Linear(512, 2 * z_dim)
 
     def _make_layer(self, BasicBlockEnc, planes, num_blocks, stride):
-        print(f"In planes {self.in_planes}")
         strides = [stride] + [1]*(num_blocks-1)
         layers = []
         for stride in strides:
