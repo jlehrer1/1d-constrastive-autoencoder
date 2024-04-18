@@ -117,6 +117,7 @@ class ResNet18Dec(nn.Module):
         self.layer2 = self._make_layer(BasicBlockDec, 64, num_blocks[1], stride=2)
         self.layer1 = self._make_layer(BasicBlockDec, 64, num_blocks[0], stride=1)
         self.conv1 = ResizeConv1d(64, nc, kernel_size=3, scale_factor=2)
+        self.linear_out = nn.Linear(64, 64)
 
     def _make_layer(self, BasicBlockDec, planes, num_blocks, stride):
         strides = [stride] + [1]*(num_blocks-1)
@@ -134,11 +135,14 @@ class ResNet18Dec(nn.Module):
         x = self.layer3(x)
         x = self.layer2(x)
         x = self.layer1(x)
-        x = torch.sigmoid(self.conv1(x))
+        x = self.conv1(x)
+        x = x.view(x.size(0), -1)
+        x = self.linear_out(x)
+        x = x.unsqueeze(1) # add back spatial dim
+        # breakpoint()
         return x
 
 class VAE(nn.Module):
-
     def __init__(self, z_dim):
         super().__init__()
         self.encoder = ResNet18Enc(z_dim=z_dim)
