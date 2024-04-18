@@ -2,8 +2,8 @@ import torch
 from torch import nn, optim
 import torch.nn.functional as F
 
-class ResizeConv1d(nn.Module):
 
+class ResizeConv1d(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, scale_factor, mode='nearest'):
         super().__init__()
         self.scale_factor = scale_factor
@@ -19,7 +19,6 @@ class BasicBlockEnc(nn.Module):
 
     def __init__(self, in_planes, stride=1):
         super().__init__()
-
         planes = in_planes*stride
 
         self.conv1 = nn.Conv1d(in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
@@ -36,10 +35,10 @@ class BasicBlockEnc(nn.Module):
             )
 
     def forward(self, x):
-        out = torch.relu(self.bn1(self.conv1(x)))
+        out = F.leaky_relu(self.bn1(self.conv1(x)))
         out = self.bn2(self.conv2(out))
         out += self.shortcut(x)
-        out = torch.relu(out)
+        out = F.leaky_relu(out)
         return out
 
 class BasicBlockDec(nn.Module):
@@ -66,10 +65,10 @@ class BasicBlockDec(nn.Module):
             )
 
     def forward(self, x):
-        out = torch.relu(self.bn2(self.conv2(x)))
+        out = F.leaky_relu(self.bn2(self.conv2(x)))
         out = self.bn1(self.conv1(out))
         out += self.shortcut(x)
-        out = torch.relu(out)
+        out = F.leaky_relu(out)
         return out
 
 class ResNet18Enc(nn.Module):
@@ -95,7 +94,7 @@ class ResNet18Enc(nn.Module):
         return nn.Sequential(*layers)
 
     def forward(self, x):
-        x = torch.relu(self.bn1(self.conv1(x)))
+        x = F.leaky_relu(self.bn1(self.conv1(x)))
         x = self.layer1(x)
         x = self.layer2(x)
         x = self.layer3(x)
