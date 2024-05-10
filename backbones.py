@@ -2,7 +2,6 @@ import torch
 from torch import nn, optim
 import torch.nn.functional as F
 
-
 class ResizeConv1d(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, scale_factor, mode='nearest'):
         super().__init__()
@@ -16,7 +15,6 @@ class ResizeConv1d(nn.Module):
         return x
 
 class BasicBlockEnc(nn.Module):
-
     def __init__(self, in_planes, stride=1):
         super().__init__()
         planes = in_planes*stride
@@ -139,7 +137,7 @@ class ResNet18Dec(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.linear_out(x)
         x = x.unsqueeze(1) # add back spatial dim
-        # breakpoint()
+        
         return x
 
 class VAE(nn.Module):
