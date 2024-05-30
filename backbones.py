@@ -151,8 +151,16 @@ class VAE(nn.Module):
         decoded = self.decoder(encoded)
         return encoded, decoded
 
-if __name__ == "__main__":
-    sample = torch.randn(8, 1, 64)
-    model = VAE(z_dim=2)
+def test_decoder():
+    sample = torch.randn(8, 20) # embedding shape is always the same 
+    model = ResNet18Dec(output_size=50)
     output = model(sample)
-    print(output[0].shape, output[1].shape)
+    assert output.shape == (8, 1, 50)
+
+    sample = torch.randn(8, 20)
+    model = ResNet18Dec(output_size=100)
+    output = model(sample)
+    assert output.shape == (8, 1, 100)
+
+if __name__ == "__main__":
+    test_decoder()
