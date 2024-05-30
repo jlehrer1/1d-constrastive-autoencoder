@@ -104,7 +104,7 @@ class ResNet18Enc(nn.Module):
 
 class ResNet18Dec(nn.Module):
 
-    def __init__(self, num_blocks=[2,2,2,2], z_dim=10, nc=1):
+    def __init__(self, output_size: int=64, num_blocks=[2,2,2,2], z_dim=10, nc=1):
         super().__init__()
         self.in_planes = 512
 
@@ -115,7 +115,7 @@ class ResNet18Dec(nn.Module):
         self.layer2 = self._make_layer(BasicBlockDec, 64, num_blocks[1], stride=2)
         self.layer1 = self._make_layer(BasicBlockDec, 64, num_blocks[0], stride=1)
         self.conv1 = ResizeConv1d(64, nc, kernel_size=3, scale_factor=2)
-        self.linear_out = nn.Linear(64, 64)
+        self.linear_out = nn.Linear(64, output_size)
 
     def _make_layer(self, BasicBlockDec, planes, num_blocks, stride):
         strides = [stride] + [1]*(num_blocks-1)
@@ -136,8 +136,8 @@ class ResNet18Dec(nn.Module):
         x = self.conv1(x)
         x = x.view(x.size(0), -1)
         x = self.linear_out(x)
-        x = x.unsqueeze(1) # add back spatial dim
-        
+        x = x.unsqueeze(1) # add back channel
+
         return x
 
 class VAE(nn.Module):
@@ -151,8 +151,16 @@ class VAE(nn.Module):
         decoded = self.decoder(encoded)
         return encoded, decoded
 
-if __name__ == "__main__":
-    sample = torch.randn(8, 1, 64)
-    model = VAE(z_dim=2)
+def test_decoder():
+    sample = torch.randn(8, 20) # embedding shape is always the same 
+    model = ResNet18Dec(output_size=50)
     output = model(sample)
-    print(output[0].shape, output[1].shape)
+    assert output.shape == (8, 1, 50)
+
+    sample = torch.randn(8, 20)
+    model = ResNet18Dec(output_size=100)
+    output = model(sample)
+    assert output.shape == (8, 1, 100)
+
+if __name__ == "__main__":
+    test_decoder()

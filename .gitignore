@@ -9,3 +9,13 @@ __pycache__/*
 *.pt
 **/*.pt
 **/*.ckpt
+*.npy
+**/*.npy
+*.zip
+**/*.zip
+*.csv
+**/*.csv
+*.json
+**/*.json
+*.txt
+**/*.txt
