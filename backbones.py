@@ -71,9 +71,9 @@ class BasicBlockDec(nn.Module):
 
 class ResNet18Enc(nn.Module):
 
-    def __init__(self, num_blocks=[2,2,2,2], z_dim=10, nc=1):
+    def __init__(self,input_size = 64, num_blocks=[2,2,2,2], z_dim=10, nc=1):
         super().__init__()
-        self.in_planes = 64
+        self.in_planes = input_size
         self.z_dim = z_dim
         self.conv1 = nn.Conv1d(nc, 64, kernel_size=3, stride=2, padding=1, bias=False)
         self.bn1 = nn.BatchNorm1d(64)
@@ -104,18 +104,17 @@ class ResNet18Enc(nn.Module):
 
 class ResNet18Dec(nn.Module):
 
-    def __init__(self, num_blocks=[2,2,2,2], z_dim=10, nc=1):
+    def __init__(self, output_size = 64, num_blocks=[2,2,2,2], z_dim=10, nc=1):
         super().__init__()
         self.in_planes = 512
-
         self.linear = nn.Linear(2 * z_dim, 512)
 
         self.layer4 = self._make_layer(BasicBlockDec, 256, num_blocks[3], stride=2)
         self.layer3 = self._make_layer(BasicBlockDec, 128, num_blocks[2], stride=2)
         self.layer2 = self._make_layer(BasicBlockDec, 64, num_blocks[1], stride=2)
         self.layer1 = self._make_layer(BasicBlockDec, 64, num_blocks[0], stride=1)
-        self.conv1 = ResizeConv1d(64, nc, kernel_size=3, scale_factor=2)
-        self.linear_out = nn.Linear(64, 64)
+        self.conv1 = ResizeConv1d(output_size, nc, kernel_size=3, scale_factor=2)
+        self.linear_out = nn.Linear(output_size, output_size)
 
     def _make_layer(self, BasicBlockDec, planes, num_blocks, stride):
         strides = [stride] + [1]*(num_blocks-1)
